@@ -1,0 +1,7 @@
+.env
+.env.local
+assets/uploads/orders/*
+!assets/uploads/orders/.gitkeep
+*.log
+.DS_Store
+Thumbs.db
