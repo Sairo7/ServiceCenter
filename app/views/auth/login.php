@@ -40,46 +40,10 @@
               </label>
             </div>
 
-            <button type="submit" class="btn btn-primary-gradient btn-lg w-100 rounded-3 fw-bold text-white shadow-sm mb-4">
+            <button type="submit" class="btn btn-primary-gradient btn-lg w-100 rounded-3 fw-bold text-white shadow-sm mb-0">
               <i class="bi bi-box-arrow-in-right me-2"></i> Masuk Sistem
             </button>
           </form>
-
-          <!-- Demo Quick Credentials Picker -->
-          <div class="p-3 bg-light rounded-4 border border-light-subtle">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <span class="fw-bold extra-small text-uppercase text-secondary">
-                <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Demo Login
-              </span>
-              <span class="extra-small text-muted">Klik role untuk auto-fill</span>
-            </div>
-            <div class="row g-2">
-              <div class="col-6">
-                <button type="button" class="btn btn-outline-primary btn-sm w-100 text-start py-2 px-2 extra-small rounded-3" onclick="fillDemo('customer')" title="customer / customer123">
-                  <i class="bi bi-person-fill me-1"></i> <strong>Customer</strong>
-                  <div class="text-muted extra-small" style="font-size: 0.7rem;">Pass: customer123</div>
-                </button>
-              </div>
-              <div class="col-6">
-                <button type="button" class="btn btn-outline-primary btn-sm w-100 text-start py-2 px-2 extra-small rounded-3" onclick="fillDemo('operator')" title="operator / operator456">
-                  <i class="bi bi-headset me-1"></i> <strong>Operator</strong>
-                  <div class="text-muted extra-small" style="font-size: 0.7rem;">Pass: operator456</div>
-                </button>
-              </div>
-              <div class="col-6">
-                <button type="button" class="btn btn-outline-primary btn-sm w-100 text-start py-2 px-2 extra-small rounded-3" onclick="fillDemo('teknisi')" title="teknisi / teknisi789">
-                  <i class="bi bi-wrench me-1"></i> <strong>Teknisi</strong>
-                  <div class="text-muted extra-small" style="font-size: 0.7rem;">Pass: teknisi789</div>
-                </button>
-              </div>
-              <div class="col-6">
-                <button type="button" class="btn btn-outline-primary btn-sm w-100 text-start py-2 px-2 extra-small rounded-3" onclick="fillDemo('kepala_sekolah')" title="kepala_sekolah / kepalasekolah101">
-                  <i class="bi bi-award-fill me-1"></i> <strong>Kepala Sekolah</strong>
-                  <div class="text-muted extra-small" style="font-size: 0.7rem;">Pass: kepalasekolah101</div>
-                </button>
-              </div>
-            </div>
-          </div>
 
         </div>
         <div class="card-footer bg-light text-center py-3 border-top-0">
@@ -92,22 +56,3 @@
     </div>
   </div>
 </div>
-
-<script>
-function fillDemo(role) {
-  const usernameInput = document.getElementById('username');
-  const passwordInput = document.getElementById('password');
-  const demoAccounts = {
-    'customer': { user: 'customer', pass: 'customer123' },
-    'operator': { user: 'operator', pass: 'operator456' },
-    'teknisi': { user: 'teknisi', pass: 'teknisi789' },
-    'kepala_sekolah': { user: 'kepala_sekolah', pass: 'kepalasekolah101' },
-    'kepalasekolah': { user: 'kepala_sekolah', pass: 'kepalasekolah101' }
-  };
-  
-  if (demoAccounts[role]) {
-    usernameInput.value = demoAccounts[role].user;
-    passwordInput.value = demoAccounts[role].pass;
-  }
-}
-</script>
