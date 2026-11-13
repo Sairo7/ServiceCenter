@@ -244,6 +244,40 @@ class OtpModel
         return null;
     }
 
+    private function getGatewaySettings()
+    {
+        $settings = [
+            'provider'     => strtolower(OTP_PROVIDER),
+            'api_token'    => OTP_API_TOKEN,
+            'endpoint'     => OTP_API_ENDPOINT,
+            'country_code' => '62',
+            'service_name' => APP_NAME
+        ];
+
+        // If ConfigModel exists and table has DB configs, prioritize them dynamically
+        if ($this->db && $this->db->isConnected()) {
+            try {
+                $this->db->query("SELECT config_key, config_value FROM system_configs");
+                $rows = $this->db->resultSet();
+                if ($rows) {
+                    foreach ($rows as $row) {
+                        $k = $row['config_key'];
+                        $v = trim($row['config_value'] ?? '');
+                        if ($k === 'gateway_provider' && !empty($v)) $settings['provider'] = strtolower($v);
+                        if ($k === 'api_token' && !empty($v)) $settings['api_token'] = $v;
+                        if ($k === 'api_endpoint' && !empty($v)) $settings['endpoint'] = $v;
+                        if ($k === 'default_country_code' && !empty($v)) $settings['country_code'] = $v;
+                        if ($k === 'service_name' && !empty($v)) $settings['service_name'] = $v;
+                    }
+                }
+            } catch (Exception $e) {
+                // Keep default settings
+            }
+        }
+
+        return $settings;
+    }
+
     /**
      * Test and check connection with configured OTP Gateway
      * Returns: [
@@ -257,8 +291,9 @@ class OtpModel
      */
     public function checkConnection()
     {
-        $apiToken = OTP_API_TOKEN;
-        $provider = strtolower(OTP_PROVIDER);
+        $gw = $this->getGatewaySettings();
+        $apiToken = $gw['api_token'];
+        $provider = $gw['provider'];
 
         if (empty($apiToken) || $provider === 'mock') {
             return [
@@ -368,11 +403,13 @@ class OtpModel
      */
     public function dispatchOtp($recipient, $otpCode, $channel = 'whatsapp')
     {
-        $apiToken = OTP_API_TOKEN;
-        $endpoint = OTP_API_ENDPOINT;
-        $provider = strtolower(OTP_PROVIDER);
+        $gw = $this->getGatewaySettings();
+        $apiToken = $gw['api_token'];
+        $endpoint = $gw['endpoint'];
+        $provider = $gw['provider'];
+        $countryCode = $gw['country_code'] ?: '62';
+        $appName = $gw['service_name'] ?: APP_NAME;
 
-        $appName = APP_NAME;
         $expiryMinutes = OTP_EXPIRY_MINUTES;
         $message = "*{$appName}*\n\nKode verifikasi (OTP) Anda adalah:\n*{$otpCode}*\n\nMasa berlaku: {$expiryMinutes} Menit.\nDemi keamanan, JANGAN berikan kode ini kepada siapa pun termasuk pihak {$appName}.";
 
@@ -402,7 +439,7 @@ class OtpModel
             curl_setopt($ch, CURLOPT_POSTFIELDS, [
                 'target' => $cleanTarget,
                 'message' => $message,
-                'countryCode' => '62'
+                'countryCode' => $countryCode
             ]);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 "Authorization: {$apiToken}"

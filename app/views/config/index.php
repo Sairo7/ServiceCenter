@@ -27,6 +27,40 @@
         </div>
       </div>
 
+      <!-- Connection Status Card -->
+      <?php if (isset($conn_status)): ?>
+      <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
+        <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center <?= ($conn_status['connected'] ?? false) ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning' ?>" style="width: 48px; height: 48px; font-size: 1.4rem;">
+              <i class="bi <?= ($conn_status['connected'] ?? false) ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill' ?>"></i>
+            </div>
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <h6 class="fw-bold mb-0 text-dark">Status Gateway WhatsApp Fonnte:</h6>
+                <?php if ($conn_status['connected'] ?? false): ?>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill extra-small">
+                    <i class="bi bi-broadcast me-1"></i> Terhubung (Device Ready)
+                  </span>
+                <?php else: ?>
+                  <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 rounded-pill extra-small">
+                    <i class="bi bi-info-circle me-1"></i> <?= htmlspecialchars($conn_status['status'] ?? 'Belum Terhubung') ?>
+                  </span>
+                <?php endif; ?>
+              </div>
+              <p class="small text-muted mb-0"><?= htmlspecialchars($conn_status['message'] ?? '') ?></p>
+            </div>
+          </div>
+          <?php if (!empty($conn_status['device_name'])): ?>
+          <div class="text-md-end">
+            <span class="extra-small text-muted d-block">Nama Perangkat Fonnte:</span>
+            <span class="fw-bold text-dark small"><i class="bi bi-phone me-1"></i><?= htmlspecialchars($conn_status['device_name']) ?></span>
+          </div>
+          <?php endif; ?>
+        </div>
+      </div>
+      <?php endif; ?>
+
       <!-- Form Card -->
       <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
         <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
