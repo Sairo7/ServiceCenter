@@ -53,4 +53,53 @@ class UserController extends Controller
         $this->view('user/index', $data);
         $this->view('templates/footer', $data);
     }
+
+    /**
+     * Operator Action: Store New User
+     */
+    public function store()
+    {
+        Auth::requireRole('operator');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userModel = $this->model('UserModel');
+
+            $fullName       = trim($_POST['full_name'] ?? '');
+            $username       = trim($_POST['username'] ?? '');
+            $email          = trim($_POST['email'] ?? '');
+            $phone          = trim($_POST['phone'] ?? '');
+            $roleId         = intval($_POST['role_id'] ?? 0);
+            $password       = trim($_POST['password'] ?? '');
+            $specialization = trim($_POST['specialization'] ?? '');
+
+            // Basic validation
+            if (empty($fullName) || empty($username) || empty($email) || empty($roleId) || empty($password)) {
+                Flasher::setFlash('Gagal menambahkan pengguna.', 'Semua kolom wajib diisi lengkap.', 'danger');
+                header('Location: ' . BASE_URL . '/index.php?url=user');
+                exit;
+            }
+
+            $res = $userModel->createUser([
+                'full_name'      => $fullName,
+                'username'       => $username,
+                'email'          => $email,
+                'phone'          => $phone,
+                'role_id'        => $roleId,
+                'password'       => $password,
+                'specialization' => $specialization
+            ]);
+
+            if ($res['status']) {
+                Flasher::setFlash('Berhasil!', $res['message'], 'success');
+            } else {
+                Flasher::setFlash('Gagal menambahkan pengguna.', $res['message'], 'danger');
+            }
+
+            header('Location: ' . BASE_URL . '/index.php?url=user');
+            exit;
+        }
+
+        header('Location: ' . BASE_URL . '/index.php?url=user');
+        exit;
+    }
 }

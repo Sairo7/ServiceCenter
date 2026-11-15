@@ -43,7 +43,8 @@ class ConfigModel
             'service_name'         => 'TKJ Service Center',
             'gateway_provider'     => 'Fonnte',
             'api_token'            => 'jmsDKErQCKjFWhycUYqe',
-            'default_country_code' => '62'
+            'default_country_code' => '62',
+            'gemini_api_key'       => getenv('GEMINI_API_KEY') ?: ''
         ];
     }
 

@@ -13,14 +13,24 @@
       <!-- Header Banner -->
       <div class="card border-0 bg-dark-gradient text-white rounded-4 shadow-sm mb-4">
         <div class="card-body p-4 p-md-5">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-uppercase">
-              <i class="bi bi-people-fill me-1"></i> Data Pengguna
-            </span>
-            <span class="text-white-50 extra-small"><i class="bi bi-shield-lock me-1"></i> Akses Khusus Operator TKJ</span>
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-uppercase">
+                  <i class="bi bi-people-fill me-1"></i> Data Pengguna
+                </span>
+                <span class="text-white-50 extra-small"><i class="bi bi-shield-lock me-1"></i> Akses Khusus Operator TKJ</span>
+              </div>
+              <h2 class="fw-extrabold mb-1">Daftar Akun & Total Pengguna</h2>
+              <p class="text-light opacity-75 mb-0 small">Monitoring dan kelola seluruh akun pengguna terdaftar pada sistem Unit Bisnis Jasa TKJ Service Center.</p>
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm fw-bold d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <i class="bi bi-person-plus-fill fs-5"></i>
+                <span>Tambah Pengguna</span>
+              </button>
+            </div>
           </div>
-          <h2 class="fw-extrabold mb-1">Daftar Akun & Total Pengguna</h2>
-          <p class="text-light opacity-75 mb-0 small">Monitoring seluruh akun pengguna terdaftar pada sistem Unit Bisnis Jasa TKJ Service Center.</p>
         </div>
       </div>
 
@@ -216,3 +226,141 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Tambah Pengguna -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+      <div class="modal-header bg-dark-gradient text-white p-4 border-0">
+        <div class="d-flex align-items-center gap-3">
+          <div class="bg-primary p-2 rounded-3 text-white d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+            <i class="bi bi-person-plus fs-4"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold mb-0" id="addUserModalLabel">Tambah Akun Pengguna Baru</h5>
+            <small class="text-white-50">Daftarkan akun pengguna baru ke database TKJ Service Center</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="<?= BASE_URL ?>/index.php?url=user/store" method="POST" id="formAddUser">
+        <div class="modal-body p-4 bg-light">
+          <div class="card border-0 rounded-4 shadow-none bg-white p-4 mb-3">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-person-badge text-primary me-2"></i>Informasi Akun & Identitas</h6>
+            
+            <div class="row g-3">
+              <!-- Nama Lengkap -->
+              <div class="col-md-6">
+                <label for="new_full_name" class="form-label small fw-semibold text-muted">Nama Lengkap <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                  <input type="text" class="form-control bg-light border-start-0" id="new_full_name" name="full_name" placeholder="cth: Ahmad Fauzi, S.Kom" required>
+                </div>
+              </div>
+
+              <!-- Username -->
+              <div class="col-md-6">
+                <label for="new_username" class="form-label small fw-semibold text-muted">Username <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">@</span>
+                  <input type="text" class="form-control bg-light border-start-0" id="new_username" name="username" placeholder="cth: ahmadfauzi" required pattern="[a-zA-Z0-9_.]+" title="Hanya huruf, angka, underscore, atau titik tanpa spasi">
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6">
+                <label for="new_email" class="form-label small fw-semibold text-muted">Alamat Email <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                  <input type="email" class="form-control bg-light border-start-0" id="new_email" name="email" placeholder="cth: ahmad@tkj.sch.id" required>
+                </div>
+              </div>
+
+              <!-- WhatsApp/Phone -->
+              <div class="col-md-6">
+                <label for="new_phone" class="form-label small fw-semibold text-muted">Nomor WhatsApp / HP</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-whatsapp text-muted"></i></span>
+                  <input type="tel" class="form-control bg-light border-start-0" id="new_phone" name="phone" placeholder="cth: 081234567890">
+                </div>
+                <div class="form-text extra-small text-muted">Nomor aktif untuk notifikasi & verifikasi OTP.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0 rounded-4 shadow-none bg-white p-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-shield-lock text-primary me-2"></i>Hak Akses (Role) & Keamanan</h6>
+
+            <div class="row g-3">
+              <!-- Role -->
+              <div class="col-md-6">
+                <label for="new_role_id" class="form-label small fw-semibold text-muted">Peran / Role Pengguna <span class="text-danger">*</span></label>
+                <select class="form-select bg-light" id="new_role_id" name="role_id" required onchange="toggleSpecializationField(this.value)">
+                  <option value="" disabled selected>-- Pilih Role Pengguna --</option>
+                  <option value="4">Customer (Pelanggan Layanan)</option>
+                  <option value="3">Teknisi Siswa TKJ</option>
+                  <option value="2">Operator TKJ</option>
+                  <option value="1">Kepala Sekolah (Pimpinan)</option>
+                </select>
+              </div>
+
+              <!-- Password -->
+              <div class="col-md-6">
+                <label for="new_password" class="form-label small fw-semibold text-muted">Password Akun <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
+                  <input type="password" class="form-control bg-light border-start-0 border-end-0" id="new_password" name="password" placeholder="Minimal 6 karakter" required minlength="6">
+                  <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('new_password', this)">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Bidang Keahlian / Spesialisasi (Hanya untuk Teknisi) -->
+              <div class="col-12" id="specializationField" style="display: none;">
+                <label for="new_specialization" class="form-label small fw-semibold text-muted">Spesialisasi / Keahlian Teknisi</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"><i class="bi bi-tools text-muted"></i></span>
+                  <input type="text" class="form-control bg-light border-start-0" id="new_specialization" name="specialization" placeholder="cth: Instalasi CCTV, Mikrotik & Fiber Optik">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light p-3 border-top-0 d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary px-4 rounded-3" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary px-4 rounded-3 fw-bold shadow-sm">
+            <i class="bi bi-check-circle-fill me-1"></i> Simpan Pengguna
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSpecializationField(roleId) {
+  var specDiv = document.getElementById('specializationField');
+  if (roleId === '3') {
+    specDiv.style.display = 'block';
+  } else {
+    specDiv.style.display = 'none';
+  }
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  var input = document.getElementById(inputId);
+  var icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('bi-eye');
+    icon.classList.add('bi-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('bi-eye-slash');
+    icon.classList.add('bi-eye-eye');
+  }
+}
+</script>

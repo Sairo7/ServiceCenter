@@ -156,6 +156,42 @@
                 </div>
               </div>
 
+              <!-- Section Divider: Chatbot AI -->
+              <div class="col-12 mt-4 pt-3 border-top">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <h6 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-robot me-2 text-primary"></i> Konfigurasi Chatbot AI & Asisten Teknisi
+                  </h6>
+                  <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-1 rounded-pill extra-small">
+                    Google Gemini AI
+                  </span>
+                </div>
+                <p class="small text-muted mb-3">
+                  Digunakan untuk mengaktifkan analisis lanjutan pada AI Troubleshoot Teknisi dan Generator Laporan Pekerjaan. Jika dikosongkan, sistem otomatis menggunakan <strong>Rule-Engine Smart Fallback</strong> bawaan tanpa error.
+                </p>
+              </div>
+
+              <!-- 5. API Key Gemini AI -->
+              <div class="col-md-12">
+                <label for="gemini_api_key" class="form-label fw-bold text-dark small text-uppercase">
+                  API Key Chatbot AI (Gemini) <span class="text-muted fw-normal">(Opsional)</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light text-muted border-end-0">
+                    <i class="bi bi-cpu-fill"></i>
+                  </span>
+                  <input type="password" class="form-control bg-light border-start-0 border-end-0 font-monospace" id="gemini_api_key" name="gemini_api_key" 
+                         value="<?= htmlspecialchars($configs['gemini_api_key'] ?? '') ?>" 
+                         placeholder="Contoh: AIzaSy...">
+                  <button class="btn btn-light border border-start-0 text-muted" type="button" id="btnToggleAiKey">
+                    <i class="bi bi-eye" id="toggleAiIcon"></i>
+                  </button>
+                </div>
+                <div class="form-text extra-small text-muted">
+                  Kunci API dari Google AI Studio untuk model Gemini (tersimpan aman di server dan tidak terekspos ke publik).
+                </div>
+              </div>
+
             </div>
 
             <hr class="my-4">
@@ -192,6 +228,24 @@ document.addEventListener('DOMContentLoaded', function () {
         tokenInput.type = 'password';
         toggleIcon.classList.remove('bi-eye-slash');
         toggleIcon.classList.add('bi-eye');
+      }
+    });
+  }
+
+  const aiKeyInput = document.getElementById('gemini_api_key');
+  const btnToggleAi = document.getElementById('btnToggleAiKey');
+  const toggleAiIcon = document.getElementById('toggleAiIcon');
+
+  if (btnToggleAi && aiKeyInput) {
+    btnToggleAi.addEventListener('click', function () {
+      if (aiKeyInput.type === 'password') {
+        aiKeyInput.type = 'text';
+        toggleAiIcon.classList.remove('bi-eye');
+        toggleAiIcon.classList.add('bi-eye-slash');
+      } else {
+        aiKeyInput.type = 'password';
+        toggleAiIcon.classList.remove('bi-eye-slash');
+        toggleAiIcon.classList.add('bi-eye');
       }
     });
   }

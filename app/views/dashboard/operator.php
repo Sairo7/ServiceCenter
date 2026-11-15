@@ -23,7 +23,7 @@
         </div>
       </div>
 
-      <!-- 7 KPI Cards for Operator -->
+      <!-- 6 KPI Cards for Operator -->
       <div class="row gy-3 mb-4">
         <div class="col-sm-6 col-md-4 col-xl-2">
           <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 text-center border-start border-4" style="border-color: #6f42c1 !important;">
@@ -69,13 +69,6 @@
           <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 text-center border-start border-success border-4">
             <span class="text-muted extra-small font-weight-bold text-uppercase d-block mb-1">Order Selesai</span>
             <h3 class="fw-extrabold text-success mb-0"><?= htmlspecialchars($stats['completed_orders'] ?? 0) ?></h3>
-          </div>
-        </div>
-
-        <div class="col-sm-6 col-md-4 col-xl-2">
-          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 text-center">
-            <span class="text-muted extra-small font-weight-bold text-uppercase d-block mb-1">Total Omset</span>
-            <h4 class="fw-extrabold text-success mb-0">Rp <?= number_format($stats['total_revenue'] ?? 0, 0, ',', '.') ?></h4>
           </div>
         </div>
       </div>

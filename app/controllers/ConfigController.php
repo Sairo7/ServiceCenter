@@ -49,10 +49,11 @@ class ConfigController extends Controller
         $gatewayProvider    = trim($_POST['gateway_provider'] ?? '');
         $apiToken           = trim($_POST['api_token'] ?? '');
         $defaultCountryCode = trim($_POST['default_country_code'] ?? '');
+        $geminiApiKey       = trim($_POST['gemini_api_key'] ?? '');
 
-        // Validasi input wajib
+        // Validasi input wajib untuk gateway
         if (empty($serviceName) || empty($gatewayProvider) || empty($apiToken) || empty($defaultCountryCode)) {
-            Flasher::setFlash('Semua kolom konfigurasi', 'wajib diisi dengan lengkap!', 'danger');
+            Flasher::setFlash('Semua kolom konfigurasi WhatsApp', 'wajib diisi dengan lengkap!', 'danger');
             header('Location: ' . BASE_URL . '/index.php?url=config');
             exit;
         }
@@ -63,6 +64,7 @@ class ConfigController extends Controller
         $saved2 = $configModel->set('gateway_provider', $gatewayProvider, 'Penyedia Layanan Gateway WhatsApp');
         $saved3 = $configModel->set('api_token', $apiToken, 'API Token Gateway');
         $saved4 = $configModel->set('default_country_code', $defaultCountryCode, 'Kode Negara Default Pengiriman Pesan');
+        $saved5 = $configModel->set('gemini_api_key', $geminiApiKey, 'API Key Google Gemini AI Chatbot');
 
         // Sync to .env file if it exists so environment variables stay in sync
         $envFile = __DIR__ . '/../../.env';
@@ -71,11 +73,16 @@ class ConfigController extends Controller
             $envContent = preg_replace('/^OTP_PROVIDER=.*/m', 'OTP_PROVIDER=' . strtolower($gatewayProvider), $envContent);
             $envContent = preg_replace('/^OTP_API_TOKEN=.*/m', 'OTP_API_TOKEN=' . $apiToken, $envContent);
             $envContent = preg_replace('/^DEFAULT_COUNTRY_CODE=.*/m', 'DEFAULT_COUNTRY_CODE=' . $defaultCountryCode, $envContent);
+            if (preg_match('/^GEMINI_API_KEY=.*/m', $envContent)) {
+                $envContent = preg_replace('/^GEMINI_API_KEY=.*/m', 'GEMINI_API_KEY=' . $geminiApiKey, $envContent);
+            } else {
+                $envContent .= "\nGEMINI_API_KEY=" . $geminiApiKey;
+            }
             file_put_contents($envFile, $envContent);
         }
 
-        if ($saved1 && $saved2 && $saved3 && $saved4) {
-            Flasher::setFlash('Pengaturan sistem', 'berhasil disimpan dan diperbarui!', 'success');
+        if ($saved1 && $saved2 && $saved3 && $saved4 && $saved5) {
+            Flasher::setFlash('Pengaturan sistem & API AI', 'berhasil disimpan dan diperbarui!', 'success');
         } else {
             Flasher::setFlash('Gagal menyimpan', 'beberapa pengaturan sistem ke database.', 'danger');
         }

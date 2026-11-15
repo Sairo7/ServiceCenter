@@ -17,6 +17,7 @@ class UserModel
     public function getUserByUsername($username)
     {
         $input = strtolower(trim($username));
+        $cleanPhone = preg_replace('/[^0-9]/', '', $input);
 
         $altUsername = $input;
         if ($input === 'customer' || $input === 'customer1') {
@@ -31,10 +32,18 @@ class UserModel
             $sql = "SELECT u.*, r.name as role_name, r.display_name as role_display
                     FROM " . $this->table . " u
                     JOIN roles r ON u.role_id = r.id
-                    WHERE u.username = :username OR u.username = :alt_username OR u.email = :username";
+                    WHERE LOWER(u.username) = :username 
+                       OR LOWER(u.username) = :alt_username 
+                       OR LOWER(u.email) = :email
+                       OR u.phone = :phone 
+                       OR REPLACE(REPLACE(REPLACE(u.phone, '-', ''), ' ', ''), '+', '') = :clean_phone
+                    LIMIT 1";
             $this->db->query($sql);
-            $this->db->bind(':username', $username);
-            $this->db->bind(':alt_username', $altUsername);
+            $this->db->bind(':username', $input);
+            $this->db->bind(':alt_username', strtolower($altUsername));
+            $this->db->bind(':email', $input);
+            $this->db->bind(':phone', $input);
+            $this->db->bind(':clean_phone', $cleanPhone ?: $input);
             $result = $this->db->single();
             if ($result) {
                 // normalize role attribute to match string role name
@@ -47,10 +56,11 @@ class UserModel
         // Fallback demo users matching 1 Kepsek, 1 Operator, 3 Teknisi, 3 Customers
         $demoUsers = $this->getDemoUsers();
         foreach ($demoUsers as $user) {
-            $uName = strtolower($user['username']);
-            $uEmail = strtolower($user['email']);
+            $uName = strtolower($user['username'] ?? '');
+            $uEmail = strtolower($user['email'] ?? '');
+            $uPhone = preg_replace('/[^0-9]/', '', $user['phone'] ?? '');
 
-            if ($uName === $input || $uEmail === $input || $uName === strtolower($altUsername)) {
+            if ($uName === $input || ($uEmail && $uEmail === $input) || $uName === strtolower($altUsername) || (!empty($cleanPhone) && $uPhone === $cleanPhone)) {
                 return $user;
             }
         }
@@ -149,6 +159,21 @@ class UserModel
         return false;
     }
 
+    /**
+     * Update user password securely with BCRYPT hash
+     */
+    public function updatePassword($userId, $newPassword)
+    {
+        if ($this->db->isConnected()) {
+            $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+            $sql = "UPDATE " . $this->table . " SET password = :password WHERE id = :id";
+            $this->db->query($sql);
+            $this->db->bind(':password', $hashedPassword);
+            $this->db->bind(':id', (int)$userId);
+            return $this->db->execute();
+        }
+        return true; // Return true in demo/offline mode
+    }
 
     public function authenticate($username, $password)
     {
@@ -298,15 +323,15 @@ class UserModel
         // Fallback: filter demo users (without password)
         $users = array_map(function ($u) {
             return [
-                'id'           => $u['id'],
-                'username'     => $u['username'],
-                'full_name'    => $u['full_name'],
-                'email'        => $u['email'],
+                'id'           => $u['id'] ?? null,
+                'username'     => $u['username'] ?? '',
+                'full_name'    => $u['full_name'] ?? ($u['name'] ?? ''),
+                'email'        => $u['email'] ?? '',
                 'phone'        => $u['phone'] ?? '-',
                 'is_active'    => 1,
                 'created_at'   => '2026-01-01 00:00:00',
-                'role'         => $u['role'],
-                'role_display' => ucfirst(str_replace('_', ' ', $u['role']))
+                'role'         => $u['role'] ?? 'customer',
+                'role_display' => ucfirst(str_replace('_', ' ', $u['role'] ?? 'customer'))
             ];
         }, $this->getDemoUsers());
 
@@ -339,5 +364,87 @@ class UserModel
             return $result['total'] ?? 0;
         }
         return count($this->getDemoUsers());
+    }
+
+    /**
+     * Create a new user (Operator feature)
+     * Handles unique checks, password hashing, user insertion, and role-specific profile creation.
+     */
+    public function createUser($data)
+    {
+        $fullName = trim($data['full_name'] ?? '');
+        $username = strtolower(trim($data['username'] ?? ''));
+        $email    = strtolower(trim($data['email'] ?? ''));
+        $phone    = trim($data['phone'] ?? '');
+        $roleId   = intval($data['role_id'] ?? 0);
+        $password = trim($data['password'] ?? '');
+
+        if (empty($fullName) || empty($username) || empty($email) || empty($roleId) || empty($password)) {
+            return ['status' => false, 'message' => 'Semua kolom wajib diisi lengkap.'];
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['status' => false, 'message' => 'Format email tidak valid.'];
+        }
+
+        if (strlen($password) < 6) {
+            return ['status' => false, 'message' => 'Password minimal harus 6 karakter.'];
+        }
+
+        if ($this->db->isConnected()) {
+            // Check username uniqueness
+            $this->db->query("SELECT id FROM {$this->table} WHERE LOWER(username) = :username LIMIT 1");
+            $this->db->bind(':username', $username);
+            if ($this->db->single()) {
+                return ['status' => false, 'message' => "Username '@{$username}' sudah digunakan oleh pengguna lain."];
+            }
+
+            // Check email uniqueness
+            $this->db->query("SELECT id FROM {$this->table} WHERE LOWER(email) = :email LIMIT 1");
+            $this->db->bind(':email', $email);
+            if ($this->db->single()) {
+                return ['status' => false, 'message' => "Email '{$email}' sudah terdaftar dalam sistem."];
+            }
+
+            // Hash password
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+            // Insert new user
+            $insertSql = "INSERT INTO {$this->table} (role_id, username, email, password, full_name, phone, is_active, created_at)
+                          VALUES (:role_id, :username, :email, :password, :full_name, :phone, 1, NOW())";
+            $this->db->query($insertSql);
+            $this->db->bind(':role_id', $roleId);
+            $this->db->bind(':username', $username);
+            $this->db->bind(':email', $email);
+            $this->db->bind(':password', $hashedPassword);
+            $this->db->bind(':full_name', $fullName);
+            $this->db->bind(':phone', $phone);
+
+            if ($this->db->execute()) {
+                $newUserId = $this->db->lastInsertId();
+
+                // If customer, create extended profile if customers table exists
+                if ($roleId == 4) {
+                    $this->db->query("INSERT INTO customers (user_id, customer_type, address, city, created_at) VALUES (:user_id, 'umum', 'Alamat belum diatur', 'Kota', NOW())");
+                    $this->db->bind(':user_id', $newUserId);
+                    $this->db->execute();
+                }
+
+                // If technician, create extended profile if technicians table exists
+                if ($roleId == 3) {
+                    $specialization = trim($data['specialization'] ?? 'Teknisi Jaringan & Hardware');
+                    $this->db->query("INSERT INTO technicians (user_id, nis_nip, class_grade, specialization, skill_level, status, created_at) VALUES (:user_id, NULL, 'XII TKJ', :specialization, 'junior', 'available', NOW())");
+                    $this->db->bind(':user_id', $newUserId);
+                    $this->db->bind(':specialization', $specialization ?: 'Teknisi Jaringan & Hardware');
+                    $this->db->execute();
+                }
+
+                return ['status' => true, 'message' => "Pengguna baru '{$fullName}' berhasil ditambahkan ke sistem."];
+            } else {
+                return ['status' => false, 'message' => 'Gagal menyimpan data pengguna ke database. ' . $this->db->getError()];
+            }
+        }
+
+        return ['status' => true, 'message' => "Pengguna baru '{$fullName}' berhasil didaftarkan (Mode Demo)."];
     }
 }

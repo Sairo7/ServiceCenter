@@ -23,6 +23,22 @@ if ($currentUser) {
         $widgetHistory = [];
     }
 }
+
+/**
+ * Format markdown text into clean, safe HTML without visible markdown symbols
+ */
+function renderChatbotHtml($text) {
+    $safe = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    // Bold: **text** -> <strong>text</strong>
+    $safe = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $safe);
+    // Italic: *text* -> <em>$1</em> (menghilangkan asterik liar)
+    $safe = preg_replace('/(?<!\*)\*([^*]+?)\*(?!\*)/s', '<em>$1</em>', $safe);
+    // Inline code: `code` -> <code>code</code>
+    $safe = preg_replace('/`([^`]+)`/', '<code class="bg-light text-dark px-1 rounded">$1</code>', $safe);
+    // Newlines to <br>
+    $safe = nl2br($safe);
+    return $safe;
+}
 ?>
 <style>
 /* Strictly Isolated Styles for Floating Chatbot Widget */
@@ -459,7 +475,7 @@ if ($currentUser) {
                 <i class="bi bi-robot" style="font-size: 0.8rem;"></i>
               </div>
               <div class="tkj-chat-msg-bubble">
-                <?= nl2br(htmlspecialchars($aText)) ?>
+                <?= renderChatbotHtml($aText) ?>
               </div>
             </div>
           <?php endif; ?>
@@ -642,9 +658,7 @@ if ($currentUser) {
                 document.getElementById(loadingId)?.remove();
 
                 if (data.success && data.text) {
-                    let textFormatted = escapeHtml(data.text)
-                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                        .replace(/\n/g, '<br>');
+                    let textFormatted = formatChatbotMarkdown(data.text);
 
                     let orderBtnHtml = '';
                     if (data.recommended_service) {
@@ -708,6 +722,23 @@ if ($currentUser) {
                       .replace(/>/g, "&gt;")
                       .replace(/"/g, "&quot;")
                       .replace(/'/g, "&#039;");
+        }
+
+        // Formats markdown from AI into clean HTML without raw markdown symbols
+        function formatChatbotMarkdown(rawText) {
+            if (!rawText) return '';
+            let s = escapeHtml(rawText);
+            // 1. Bold: **text** -> <strong>text</strong>
+            s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // 2. Italic: *text* -> <em>text</em>
+            s = s.replace(/(^|[^*])\*([^*\n]+)\*([^*]|$)/g, '$1<em>$2</em>$3');
+            // 3. Inline code: `code` -> <code>code</code>
+            s = s.replace(/`([^`\n]+)`/g, '<code class="bg-light text-dark px-1 rounded">$1</code>');
+            // 4. Clean up any leftover asterisks if unmatched
+            s = s.replace(/(^|\s)\*(\s|$)/g, '$1•$2');
+            // 5. Line breaks
+            s = s.replace(/\n/g, '<br>');
+            return s;
         }
 
         // Global trigger from anywhere: window.openTkjChatbot()
