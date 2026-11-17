@@ -10,9 +10,9 @@ Aplikasi Sistem Informasi Manajemen Unit Bisnis Jasa *Teaching Factory* (TEFA) J
 ---
 
 ## 👤 IDENTITAS MAHASISWA & PROYEK
-* **Nama Mahasiswa:** [Nama Lengkap Anda]
-* **NIM:** [Nomor Induk Mahasiswa Anda]
-* **Kelompok:** [Nomor / Nama Kelompok Anda]
+* **Nama Mahasiswa:** Sairo
+* **NIM:** 41257157
+* **Kelompok:** Cirtim Pride
 * **Tema Topik Kelompok:** Sistem Informasi Berbasis Web untuk Pemberdayaan UMKM Cerdas / Unit Bisnis Pendidikan Vokasi TEFA
 * **Mata Kuliah:** Rekayasa Perangkat Lunak (TIKB2503021) — 4 SKS
 * **Institusi:** Program Studi S1 Teknik Informatika — STMIK IKMI Cirebon
